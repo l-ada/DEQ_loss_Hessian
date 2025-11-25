@@ -158,10 +158,10 @@ This is equivalent to the Hessian of the scalar function $\lambda^T f$.
 Combining Term A and Term B, we obtain the complete Hessian.
 
 ### Block Matrix Form
-Let $S(\theta, h) = \lambda^T f(\theta, h)$ (with $\lambda$ fixed).
+Let $S(\theta, h_*) = \lambda^T f(\theta, h_*)$ (with $\lambda$ fixed).
 
 $$
-H = \underbrace{Z^T \left( \nabla^2_{h_*} L \right) Z}_{\text{Term A}} + \underbrace{\begin{pmatrix} I \\ Z \end{pmatrix}^T \left[ \nabla^2_{(\theta, h)} S \right] \begin{pmatrix} I \\ Z \end{pmatrix}}_{\text{Term B}}
+H = \underbrace{\left( \frac{d h_*}{d \theta} \right)^T \left( \nabla^2_{h_*} L \right) \left( \frac{d h_*}{d \theta} \right)}_{\text{Term A}} + \underbrace{\begin{pmatrix} I \\ \frac{d h_*}{d \theta} \end{pmatrix}^T \left[ \nabla^2_{(\theta, h_*)} S \right] \begin{pmatrix} I \\ \frac{d h_*}{d \theta} \end{pmatrix}}_{\text{Term B}}
 $$
 
 ### Full Expanded Formula (Symmetric)
@@ -173,3 +173,27 @@ H = \left( \frac{d h_*}{d \theta} \right)^T (\nabla^2_{h_*} L) \left( \frac{d h_
 $$
 
 This formula separates the curvature of the cost function from the curvature of the physical constraint, coupled only by the sensitivity matrix $Z = \frac{d h_*}{d \theta}$.
+
+### Explicit Substitution
+
+Substituting $\frac{d h_*}{d \theta} = (I - J)^{-1} \frac{\partial f}{\partial \theta}$ explicitly into the equation:
+
+$$
+\begin{aligned}
+H &= \left( \frac{\partial f}{\partial \theta} \right)^T (I - J)^{-T} (\nabla^2_{h_*} L) (I - J)^{-1} \frac{\partial f}{\partial \theta} \\
+&\quad + \sum_{r=1}^{N} \lambda_r \left[ \frac{\partial^2 f_r}{\partial \theta^2} + \left( \frac{\partial f}{\partial \theta} \right)^T (I - J)^{-T} \frac{\partial^2 f_r}{\partial h_* \partial \theta} + \left( \frac{\partial^2 f_r}{\partial h_* \partial \theta} \right)^T (I - J)^{-1} \frac{\partial f}{\partial \theta} \right. \\
+&\quad \left. + \left( \frac{\partial f}{\partial \theta} \right)^T (I - J)^{-T} \frac{\partial^2 f_r}{\partial h_*^2} (I - J)^{-1} \frac{\partial f}{\partial \theta} \right]
+\end{aligned}
+$$
+
+### Factored Form
+
+We can factor out the sensitivity terms to group the curvatures. Let $H_{\theta \theta}^{(\lambda)}$, $H_{h \theta}^{(\lambda)}$, and $H_{hh}^{(\lambda)}$ be the weighted sums of the Hessians of $f_r$ (e.g., $H_{hh}^{(\lambda)} = \sum \lambda_r \frac{\partial^2 f_r}{\partial h_*^2}$).
+
+We can combine the Loss Hessian with the state-state Dynamics Hessian:
+
+$$
+\begin{aligned}
+H = &H_{\theta \theta}^{(\lambda)}f \\+ &\left( \frac{\partial f}{\partial \theta} \right)^T (I - J)^{-T} \left( \nabla^2_{h_*} L + H_{hh}^{(\lambda)}f \right) (I - J)^{-1} \frac{\partial f}{\partial \theta} \\+ &\left( \frac{\partial f}{\partial \theta} \right)^T (I - J)^{-T}  H_{h \theta}^{(\lambda)}f   + H_{\theta h}^{(\lambda)}f (I - J)^{-1} \left(\frac{\partial f}{\partial \theta}\right)
+\end{aligned}
+$$
